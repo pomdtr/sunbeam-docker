@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIRNAME=$(dirname "$0")
+
+if [ $# -eq 0 ]; then
+  "$DIRNAME/list-containers.bash"
+  exit 0
+fi
+
+# Get the command
+cmd=$1
+shift
+
+if [ "$cmd" == "container" ] || [ "$cmd" == "ps" ] ; then
+  "$DIRNAME/list-containers.bash" "$@"
+elif [ "$cmd" == "image" ]; then
+  "$DIRNAME/list-images.bash" "$@"
+fi
