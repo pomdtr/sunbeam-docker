@@ -1,20 +1,39 @@
-#!/usr/bin/env bash
-
-set -e
-
-DIRNAME=$(dirname "$0")
+#!/bin/sh
 
 if [ $# -eq 0 ]; then
-  "$DIRNAME/list-containers.bash"
-  exit 0
+    sunbeam query -n '{
+        title: "Docker",
+        commands: [
+            {
+                name: "list-containers",
+                title: "List Containers",
+                mode: "view"
+            },
+            {
+                name: "connect-to-container",
+                title: "Connect to Container",
+                mode: "tty",
+                params: [
+                    {name: "container", type: "string"}
+                ]
+            }
+        ]
+    }'
+    exit 0
 fi
 
-# Get the command
-cmd=$1
-shift
-
-if [ "$cmd" == "container" ] || [ "$cmd" == "ps" ] ; then
-  "$DIRNAME/list-containers.bash" "$@"
-elif [ "$cmd" == "image" ]; then
-  "$DIRNAME/list-images.bash" "$@"
+if [ "$1" = "list-containers" ]; then
+    docker container ls --format '{{json .}}' | sunbeam query '{
+        title: .Names,
+        subtitle: .Image,
+        accessories: [.State, .Status],
+        actions: [{
+            title: "Connect",
+            onAction: {type: "run", command: "connect-to-container", params: {container: .Names}}
+        }]
+    }' | sunbeam query -s '{type: "list", items: .}'
+elif [ "$1" = "connect-to-container" ]; then
+    CONTAINER=$(sunbeam query -r '.params.container')
+    docker exec -it "$CONTAINER" bash </dev/tty 1>&2
 fi
+
