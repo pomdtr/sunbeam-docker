@@ -14,7 +14,7 @@ if [ $# -eq 0 ]; then
                 title: "Connect to Container",
                 mode: "tty",
                 params: [
-                    {name: "container", type: "string"}
+                    {name: "container", type: "string", required: true}
                 ]
             }
         ]
