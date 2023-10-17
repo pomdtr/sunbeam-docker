@@ -8,14 +8,6 @@ if [ $# -eq 0 ]; then
                 name: "list-containers",
                 title: "List Containers",
                 mode: "view"
-            },
-            {
-                name: "connect-to-container",
-                title: "Connect to Container",
-                mode: "tty",
-                params: [
-                    {name: "container", type: "string", required: true}
-                ]
             }
         ]
     }'
@@ -27,13 +19,7 @@ if [ "$1" = "list-containers" ]; then
         title: .Names,
         subtitle: .Image,
         accessories: [.State, .Status],
-        actions: [{
-            title: "Connect",
-            onAction: {type: "run", command: "connect-to-container", params: {container: .Names}}
-        }]
+        actions: []
     }) | {type: "list", items: .}'
-elif [ "$1" = "connect-to-container" ]; then
-    CONTAINER=$(sunbeam query -r '.params.container')
-    docker exec -it "$CONTAINER" bash </dev/tty 1>&2
 fi
 
